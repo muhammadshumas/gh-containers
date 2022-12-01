@@ -11,12 +11,35 @@ jobs:
   test:
     environment: testing
     runs-on: ubuntu-latest
+    # This container refrers to github container
+    # So if we define a container then the steps will run in the container. They will be hosted by runner but will be running inside the container (same as we have locally with docker containers)
+    container:
+      image: node:16
+      # environment variables needed by image, they are seperate from variables used in step
+      # env:
+
     env:
-      MONGODB_CONNECTION_PROTOCOL: mongodb+srv
-      MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
-      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
-      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      # Since we are using the test service called mongodb (we have named it that way) & we are running our job in a container so now we can directly access the DB with its service identifier we defined down below
+      MONGODB_CLUSTER_ADDRESS: mongodb
+      # MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      # MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      # Since this is test job we have defined a service to run DB & defined username and pass down below. So we will use those creds to connect to that DB
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: password
       PORT: 8080
+
+    # services is used to define service containers which are needed to run the job. They run side by side with our main steps and steps can use them. For example, here we need to test our code & we need access to test database. We can use service container to spin up a test DB which will only run during the job is running and will be shut down once the job is completed.
+    # services belong to a job & we need to set services for each job seperately
+    services:
+      # Service identifier / name (could be any string)
+      mongodb:
+        # Image to use
+        image: mongo
+        env:
+          MONGODB_INITDB_ROOT_USERNAME: root
+          MONGODB_INITDB_ROOT_PASSWORD: password
+
     steps:
       - name: Get Code
         uses: actions/checkout@v3

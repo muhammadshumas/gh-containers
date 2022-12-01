@@ -6,3 +6,7 @@
 * The containerized job is hosted by the runner
 * The steps of the jobs are executed in the container
 * We can also create services utility containers used by our steps (example testing, DB)
+
+
+
+# https://docs.github.com/en/actions/using-containerized-services/about-service-containers
